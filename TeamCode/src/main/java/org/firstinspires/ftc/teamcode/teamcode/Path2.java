@@ -42,6 +42,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.pushbothardware;
 
+import java.sql.Driver;
+
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
  * It uses the common Pushbot hardware class to define the drive on the robot.
@@ -81,13 +83,13 @@ public class Path2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     pushbothardware robot   = new pushbothardware();   // Use a Pushbot's hardware
-    BNO055IMU imu;                    // Additional Gyro device
+    BNO055IMU imu1;                    // Additional Gyro device
 
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // counts per revolution depends on type of motor used. ex: 1120 for 40:1 and 1680 for 60:1
     static final double     DRIVE_GEAR_REDUCTION    = 0.5 ;     // This is < 1.0 if geared UP. This is if you chain the wheels // CHANGE
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-                                                      (WHEEL_DIAMETER_INCHES * 3.1415);
+            (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // These constants define the desired driving/control characteristics
     // The can/should be tweaked to suite the specific robot drive train.
@@ -126,12 +128,12 @@ public class Path2 extends LinearOpMode {
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
+        parameters.loggingTag = "IMU1";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator(); // alt + enter for shortcut to import smthn
         parameters.mode = BNO055IMU.SensorMode.IMU;
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
-        imu.initialize(parameters);
+        imu1 = hardwareMap.get(BNO055IMU.class, "imu 1");
+        imu1.initialize(parameters);
 
 
         /* make sure the gyro is calibrated before continuing
@@ -152,24 +154,62 @@ public class Path2 extends LinearOpMode {
 
         // Wait for the game to start (Display Gyro value), and reset gyro before we move..
         while (!isStarted()) {
-            telemetry.addData(">", "Robot Heading = %d", imu.getAngularOrientation());
+            telemetry.addData(">", "Robot Heading = %d", imu1.getAngularOrientation());
             telemetry.update();
         }
+
+        gyroDrive(DRIVE_SPEED, 60.0, 0);
+        gyroTurn(TURN_SPEED,180);
+        /*hangUp();                                   //-----
+        gyroDrive(0,0,0);
+        strafe(DRIVE_SPEED, true);      //-----
+        sleep(1000);
+        gyroDrive(0,0,0);
+        turn180(TURN_SPEED, true);
+        sleep(500);                    //?????
+        gyroDrive(0, 0,0);
+        driveBackward(DRIVE_SPEED, false); //-----
+        sleep(4700);
+        gyroDrive(0,0,0);
+        turn180(TURN_SPEED, true);              //-----
+        sleep(500);
+        gyroDrive(0,0,0);
+        driveBackward(DRIVE_SPEED,false);
+        sleep(700);
+        catapult(true);                     //-----
+        sleep(4000);
+        gyroDrive(0,0,0);
+        catapult(false);                    //-----
+        sleep(4000);
+        gyroDrive(0,0,0);
+        driveBackward(DRIVE_SPEED, false); //-----
+        sleep(1500);
+        gyroDrive(0,0,0);*/
+
+        //gyroDrive(DRIVE_SPEED, 30, 0);
+        /*driveBackward(DRIVE_SPEED, true);
+        sleep(5000);
+        gyroDrive(0,0,0);
+        gyroTurn(TURN_SPEED, 180);
+        gyroDrive(0,0,0);
+        catapult();
+        driveBackward(DRIVE_SPEED, false);*/
+
+        //gyroTurn(TURN_SPEED, 180);
+        //gyroDrive(DRIVE_SPEED, 10, 0);
 
         //gyro.resetZAxisIntegrator();
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // Put a hold after each turn
-        while (opModeIsActive()) { //added
-            hangUp();
-            gyroHold(0,0,1);
-            gyroTurn(TURN_SPEED, 45);
-            gyroHold(0,0,1);
-            gyroDrive(DRIVE_SPEED, 48.0, 0.0);    // Drive FWD 48 inches (speed, distance, angle)
-            gyroHold(0,0,1);
-            gyroTurn(TURN_SPEED, 90);
-            gyroDrive(DRIVE_SPEED, 72.0, 0.0);
+        /*while (opModeIsActive()) { //added
+            //hangUp();
+            gyroTurn(TURN_SPEED, 40);
+            gyroDrive(DRIVE_SPEED, 3.0, 0.0);
+            gyroTurn(TURN_SPEED, -40);
+            //strafeRight(DRIVE_SPEED, 4.0, 0.0);
+            //gyroDrive(DRIVE_SPEED, 68.0, 0.0);    // Drive FWD 48 inches (speed, distance, angle)
             //gyroTurn(TURN_SPEED, 270);// (speed, angle)
             //gyroHold(0,270,1);
             //gyroDrive(DRIVE_SPEED, 7.0, 0.0);
@@ -181,22 +221,22 @@ public class Path2 extends LinearOpMode {
 
             telemetry.addData("Path", "Complete"); // telemetry shows message on phone
             telemetry.update();
-        }
+        }*/
     }
 
 
-   /**
-    *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
-    *  Move will stop if either of these conditions occur:
-    *  1) Move gets to the desired position
-    *  2) Driver stops the opmode running.
-    *
-    * @param speed      Target speed for forward motion.  Should allow for _/- variance for adjusting heading
-    * @param distance   Distance (in inches) to move from current position.  Negative distance means move backwards.
-    * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
-    *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-    *                   If a relative angle is required, add/subtract from current heading.
-    */
+    /**
+     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
+     *  Move will stop if either of these conditions occur:
+     *  1) Move gets to the desired position
+     *  2) Driver stops the opmode running.
+     *
+     * @param speed      Target speed for forward motion.  Should allow for _/- variance for adjusting heading
+     * @param distance   Distance (in inches) to move from current position.  Negative distance means move backwards.
+     * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
+     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
+     *                   If a relative angle is required, add/subtract from current heading.
+     */
     public void gyroDrive ( double speed,
                             double distance,
                             double angle) {
@@ -242,7 +282,7 @@ public class Path2 extends LinearOpMode {
 
             // keep looping while we are still active, and BOTH motors are running.
             while (opModeIsActive() &&
-                   (robot.leftfront.isBusy() && robot.rightfront.isBusy() && robot.rightback.isBusy() && robot.leftback.isBusy())) {
+                    (robot.leftfront.isBusy() && robot.rightfront.isBusy() && robot.rightback.isBusy() && robot.leftback.isBusy())) {
 
                 // adjust relative speed based on heading error.
                 error = getError(angle);
@@ -272,9 +312,9 @@ public class Path2 extends LinearOpMode {
                 telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
                 telemetry.addData("Target",  "%7d:%7d",      newLeftFrontTarget,  newRightFrontTarget);
                 telemetry.addData("Actual",  "%7d:%7d%7d%7d",      robot.leftfront.getCurrentPosition(),
-                                                             robot.rightfront.getCurrentPosition(),
-                                                             robot.leftback.getCurrentPosition(),
-                                                             robot.rightback.getCurrentPosition());
+                        robot.rightfront.getCurrentPosition(),
+                        robot.leftback.getCurrentPosition(),
+                        robot.rightback.getCurrentPosition());
                 telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
                 telemetry.update();
             }
@@ -342,28 +382,79 @@ public class Path2 extends LinearOpMode {
         robot.rightback.setPower(0);
     }
 
+    public void strafe(double speed, boolean rightStrafe){
+        if(rightStrafe) {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+    public void driveBackward(double speed, boolean backward){
+        if(backward) {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+    public void turn180(double speed, boolean turn){
+        if (turn) {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+
+
     public void hangUp(){
-        robot.hang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //target position
-        robot.hang.setTargetPosition(1120); //1120
+        robot.lift1.setTargetPosition(-1120); //1120
+        robot.lift2.setTargetPosition(1120);
 
         //set mode
-        robot.hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //set power
-        robot.hang.setPower(0.1);
+        robot.lift1.setPower(0.1);
+        robot.lift2.setPower(0.1);
 
-        while(opModeIsActive() && robot.hang.isBusy()){
-            telemetry.addData("Path1",  "Running at %7d", robot.hang.getCurrentPosition());
+        while(opModeIsActive() && robot.lift1.isBusy() && robot.lift2.isBusy()){
+            telemetry.addData("Path1",  "Running at %7d", robot.lift1.getCurrentPosition());
+            telemetry.addData("Path2",  "Running at %7d", robot.lift2.getCurrentPosition());
             telemetry.update();
 
             idle();
         }
-        robot.hang.setPower(0);
-        robot.hang.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lift1.setPower(0);
+        robot.lift2.setPower(0);
+        robot.lift1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lift2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        /*
         robot.leftback.setPower(0);
         robot.leftfront.setPower(0);
         robot.rightback.setPower(0);
@@ -372,7 +463,16 @@ public class Path2 extends LinearOpMode {
         robot.leftfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        */
 
+    }
+
+    public void catapult(boolean tossBob) {
+        if (tossBob){
+            robot.outtake.setPosition(1);
+        } else {
+            robot.outtake.setPosition(0);
+        }
     }
 
     /**
@@ -432,7 +532,7 @@ public class Path2 extends LinearOpMode {
         double robotError;
 
         // calculate error in -179 to +180 range  (
-        robotError = targetAngle - imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        robotError = targetAngle - imu1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         while (robotError > 180)  robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;

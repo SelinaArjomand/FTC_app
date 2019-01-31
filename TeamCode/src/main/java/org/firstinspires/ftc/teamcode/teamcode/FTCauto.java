@@ -157,7 +157,7 @@ public class FTCauto extends LinearOpMode {
         //hangUp();
         // left 3 inches
         gyroDrive(DRIVE_SPEED, 68.0, 0.0);    // Drive FWD 48 inches
-        gyroHold(0,0,1);
+        //gyroHold(0,0,1);
         /*gyroTurn( TURN_SPEED, -45.0);         // Turn  CCW to -45 Degrees
         gyroHold( TURN_SPEED, -45.0, 0.5);    // Hold -45 Deg heading for a 1/2 second
         gyroDrive(DRIVE_SPEED, 12.0, -45.0);  // Drive FWD 12 inches at 45 degrees

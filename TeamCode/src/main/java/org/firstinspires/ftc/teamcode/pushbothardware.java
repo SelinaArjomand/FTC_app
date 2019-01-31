@@ -59,8 +59,10 @@ public class pushbothardware
     public DcMotor rightfront;
     public DcMotor rightback;
 
-    public DcMotor hang;
-    public DcMotor launch;
+    public DcMotor lift1;
+    public DcMotor lift2;
+
+    public Servo outtake;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -80,21 +82,21 @@ public class pushbothardware
         leftfront = hardwareMap.dcMotor.get("leftfront");
         rightback = hardwareMap.dcMotor.get("rightback");
         rightfront = hardwareMap.dcMotor.get("rightfront");
-        hang = hardwareMap.dcMotor.get("hang");
-        launch = hardwareMap.dcMotor.get("launch");
+        lift1 = hardwareMap.dcMotor.get("lift1");
+        lift2 = hardwareMap.dcMotor.get("lift2");
+        outtake = hardwareMap.servo.get("outtake");
 
 
         leftback.setDirection(DcMotorSimple.Direction.REVERSE);
         leftfront.setDirection(DcMotorSimple.Direction.REVERSE);
-        //hang.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        leftback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        hang.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launch.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
     }

@@ -42,6 +42,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.pushbothardware;
 
+import java.sql.Driver;
+
 /**
  * This file illustrates the concept of driving a path based on Gyro heading and encoder counts.
  * It uses the common Pushbot hardware class to define the drive on the robot.
@@ -156,27 +158,31 @@ public class Path1 extends LinearOpMode {
             telemetry.update();
         }
 
-        //gyro.resetZAxisIntegrator();
+        hangUp();
+        gyroDrive(0,0,0);
+        strafe(DRIVE_SPEED, true);
+        sleep(1000);
+        gyroDrive(0,0,0);
+        driveBackward(DRIVE_SPEED, false);
+        sleep(4600);
+        gyroDrive(0,0,0);
+        turn180(TURN_SPEED, true);
+        sleep(1500);
+        gyroDrive(0,0,0);
+        strafe(DRIVE_SPEED, true);
+        sleep(1000);
+        gyroDrive(0, 0, 0);
+        catapult(true);
+        sleep(4000);
+        gyroDrive(0,0,0);
+        catapult(false);
+        sleep(4000);
+        gyroDrive(0,0,0);
+        driveBackward(DRIVE_SPEED, false);
+        sleep(1500);
+        gyroDrive(0,0,0);
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        // Put a hold after each turn
-        while (opModeIsActive()) { //added
-            hangUp();
-            //gyroHold(0,0,1);
-            gyroDrive(DRIVE_SPEED, 24.0, 0.0);    // Drive FWD 48 inches (speed, distance, angle)
-            //gyroTurn(TURN_SPEED, 270);// (speed, angle)
-            //gyroHold(0,270,1);
-            //gyroDrive(DRIVE_SPEED, 7.0, 0.0);
-            //gyroTurn(TURN_SPEED, 0);
-            //gyroHold(0, 0, 1);
-            //gyroDrive(DRIVE_SPEED,-65.0, 0.0);
 
-
-
-            telemetry.addData("Path", "Complete"); // telemetry shows message on phone
-            telemetry.update();
-        }
     }
 
 
@@ -337,27 +343,79 @@ public class Path1 extends LinearOpMode {
         robot.rightback.setPower(0);
     }
 
+    public void strafe(double speed, boolean rightStrafe){
+        if(rightStrafe) {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+    public void driveBackward(double speed, boolean backward){
+        if(backward) {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+    public void turn180(double speed, boolean turn){
+        if (turn) {
+            robot.leftfront.setPower(speed);
+            robot.rightfront.setPower(-speed);
+            robot.leftback.setPower(speed);
+            robot.rightback.setPower(-speed);
+        } else {
+            robot.leftfront.setPower(-speed);
+            robot.rightfront.setPower(speed);
+            robot.leftback.setPower(-speed);
+            robot.rightback.setPower(speed);
+        }
+    }
+
+
+
     public void hangUp(){
-        robot.hang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //target position
-        robot.hang.setTargetPosition(1120); //1120
+        robot.lift1.setTargetPosition(-1120); //1120
+        robot.lift2.setTargetPosition(1120);
 
         //set mode
-        robot.hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //set power
-        robot.hang.setPower(0.1);
+        robot.lift1.setPower(0.1);
+        robot.lift2.setPower(0.1);
 
-        while(opModeIsActive() && robot.hang.isBusy()){
-            telemetry.addData("Path1",  "Running at %7d", robot.hang.getCurrentPosition());
+        while(opModeIsActive() && robot.lift1.isBusy() && robot.lift2.isBusy()){
+            telemetry.addData("Path1",  "Running at %7d", robot.lift1.getCurrentPosition());
+            telemetry.addData("Path2",  "Running at %7d", robot.lift2.getCurrentPosition());
             telemetry.update();
 
             idle();
         }
-        robot.hang.setPower(0);
-        robot.hang.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lift1.setPower(0);
+        robot.lift2.setPower(0);
+        robot.lift1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lift2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        /*
         robot.leftback.setPower(0);
         robot.leftfront.setPower(0);
         robot.rightback.setPower(0);
@@ -366,7 +424,16 @@ public class Path1 extends LinearOpMode {
         robot.leftfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        */
 
+    }
+
+    public void catapult(boolean tossBob) {
+        if (tossBob){
+            robot.outtake.setPosition(1);
+        } else {
+            robot.outtake.setPosition(0);
+        }
     }
 
     /**
